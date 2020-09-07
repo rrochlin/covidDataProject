@@ -155,9 +155,37 @@ for i = 1:numArrays
 end
 
 
+
+
     %sorting the array
     
    bigArray = sortrows(bigArray,8);
+   
+   
+   
+   
+ %creating the sensor location data for plotting  
+points = zeros(numArrays,3);
+
+for i = 1:numArrays
+    try
+        points(i,1:2) = sC{i}{2};
+        switch sC{i}{3}
+            case 'B'
+                points(i,3) = 1;
+                
+            case 'M'
+                points(i,3) = 3;
+                
+            case 'T'
+                points(i,3) = 5;
+        end
+    catch
+    end
+    
+    
+    
+end
 
     
     
