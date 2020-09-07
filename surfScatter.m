@@ -22,14 +22,30 @@ values = {'','Black','';1,'Red','filled';2,'Green','filled';4,'Blue','filled';10
 listDyn = {};
 dynCount = 0;
 exportArray = [0,0,0,0];
+speeditup = 0;
+tolerance = 50;
+zerocounter = 0;
+
 
 for i = 1:max(size(bigArray))
     
     for q = 2:7
-%         if table2array(bigArray(i,q)) ~= 0
+        
+%         i know its ugly, but it works
+
+        if table2array(bigArray(i,q)) == 0
+            speeditup = speeditup +1;
+            if speeditup > 3
+                continue
+            end
+        end   
+        
+        if table2array(bigArray(i,q)) ~= 0
+            speeditup = 0;
+        end
             
-             if dynCount > 50
-                delete(listDyn{dynCount-50})
+             if dynCount > tolerance
+                delete(listDyn{dynCount-tolerance})
              end
              dynCount = dynCount + 1;
 
