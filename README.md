@@ -18,3 +18,6 @@ The color key for the scatter plot is(size,color,filled/unfilled):
 	Dp 2.5 ---	10,’Yellow’,’filled’
 	Dp 5.0 ---	20,’Magenta’,’filled’
 	Dp 10.0 ---	40,’Cyan’,’filled’
+
+
+meshGridPrep.m is a work in progress right now, when finished it will produce a series of timeslices that have been smoothened using interp3 to represent the percieved particle densities at all points in the room. Hopefully this will be helpful for different modelling techniques than the current scatter method.
