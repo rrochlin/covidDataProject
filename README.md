@@ -23,3 +23,9 @@ The color key for the scatter plot is(size,color,filled/unfilled):
 
 9/10/2020
 meshGridPrep.m is a work in progress right now, when finished it will produce a series of timeslices that have been smoothened using interp3 to represent the percieved particle densities at all points in the room. Hopefully this will be helpful for different modelling techniques than the current scatter method.
+
+9/16/2020
+Redesigned surfScatter and dataHandling, they are now callable functions. use help 'function name' to see a brief description and recommended default calls.
+Notes on surfScatter : right changeing the time window requires going into the actual function code and changing the index values of bottom and top to be set where you want. Currently they are set to show the time from 12:20 - 12:35.
+The interactions between the scatter points and the legend are handled by using a callback function to toggle the visibility of 7 hidden points. Then using linkprop() we link the visibility of these points to every corresponding plot generated. Seems to arbitrarily become broken as different instances of the code is changed. Pause(.05) was chosen as it appears to be the shortest pause while still retaining the ability to rotate the graph and use the hide points callback function.
+This function by default ignores all 0 values and its runspeed is constrained by the computational speed that it can calculate and draw scatters, not by how long the time delay is.
