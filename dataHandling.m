@@ -1,6 +1,6 @@
-function [bigArray,B,Br,points,sC,noiseX,noiseY,noiseZ] = dataHandling(xvar,yvar,zvar)
+function [bigArray,B,Br,points,sC,noiseX,noiseY,noiseZ,tSArray] = dataHandling(xvar,yvar,zvar)
 
-    % [bigArray,B,Br,points,sC,noiseX,noiseY,noiseZ] = dataHandling(2,2,1);
+    % [bigArray,B,Br,points,sC,X,Y,Z,tSArray] = dataHandling(2,2,1);
     % 
     % 
     % Robert Rochlin 9/15/2020
@@ -47,6 +47,7 @@ function [bigArray,B,Br,points,sC,noiseX,noiseY,noiseZ] = dataHandling(xvar,yvar
         end
         try
             T=readtable(strcat('B-0',int2str(i),'.txt'));
+            warning('off','last')
             B{i} = T(:,[2,7:12]);
             B{i}(:,8) = array2table(datenum(table2array(B{i}(:,1),'HH:MM:SS')));
         catch
@@ -66,6 +67,8 @@ function [bigArray,B,Br,points,sC,noiseX,noiseY,noiseZ] = dataHandling(xvar,yvar
             catch
             end
         end
+        
+        
         
         
     end
@@ -108,7 +111,7 @@ function [bigArray,B,Br,points,sC,noiseX,noiseY,noiseZ] = dataHandling(xvar,yvar
             catch
             end
         end
-        warning('off','last')
+        
     end
     
     
@@ -209,32 +212,97 @@ function [bigArray,B,Br,points,sC,noiseX,noiseY,noiseZ] = dataHandling(xvar,yvar
         
     end
     
-    h = waitbar(0,'Please wait...');
-    for i = 1:max(size(bigArray))
-        waitbar(i/max(size(bigArray)),h,'Processing Data')
-        if table2array(bigArray(i,2)) == 0
-            continue
-        end
-        for q = 2:7
-             if q ~= 7
-                 
-                  
-                noiseX{i,q} = (randn(1,table2array(bigArray(i,q))-table2array(bigArray(i,q+1)))-.5).*xvar;
-                noiseY{i,q} = (randn(1,table2array(bigArray(i,q))-table2array(bigArray(i,q+1)))-.5).*yvar;
-                noiseZ{i,q} = (randn(1,table2array(bigArray(i,q))-table2array(bigArray(i,q+1)))-.5).*zvar;
-             else
+    increment = 1;
+    endVarCount = 1;
+    dataCell = cell(1,7);
     
-                 noiseX{i,q} = (randn(1,table2array(bigArray(i,q)))-.5).*xvar;
-                 noiseY{i,q} = (randn(1,table2array(bigArray(i,q)))-.5).*yvar;
-                 noiseZ{i,q} = (randn(1,table2array(bigArray(i,q)))-.5).*zvar;
-             end
-        end
+    % After we have our order cell array, we put it into another cell array and
+    % group everything into time slices.
+    
+    for q = 2:7
+    dataCell{q} = zeros(floor(size(bigArray,1)/36),25);
+    dataCell{q}(1,24) = table2array(bigArray(1,2));
+    dataCell{q}(1,25) = table2array(bigArray(1,8));
     end
     
+    h = waitbar(0,'Please wait...');
+    while endVarCount < size(bigArray,1)
+        waitbar(endVarCount/size(bigArray,1),h,strcat('Organizing Data','--->',(num2str(floor(endVarCount/size(bigArray,1)*100))),'%'))
+    
+        
+        while table2array(bigArray(endVarCount+1,9))~=24
+            endVarCount = endVarCount + 1;
+            for q = 2:7
+                dataCell{q}(increment,table2array(bigArray(endVarCount,9))) = table2array(bigArray(endVarCount,q));
+            end
+        end
+        
+        increment = increment +1;
+        endVarCount = endVarCount + 1;
+        for q = 2:7
+            dataCell{q}(increment,table2array(bigArray(endVarCount,9))) = table2array(bigArray(endVarCount,q));
+            dataCell{q}(increment,25) = table2array(bigArray(endVarCount,8));
+        end
+        
+    end
     waitbar(1,h,'Finishing');
     pause(1)
     
     close(h)
+    
+    noiseX = cell(size(dataCell{2},1),7);
+    noiseY=noiseX;
+    noiseZ=noiseX;
+    
+    
+    h = waitbar(0,'Please wait...');
+    
+    finish = size(dataCell{2},1);
+    
+    tSArray = zeros(1,finish);
+    
+    for i = 1:finish
+        waitbar(i/(finish),h,strcat('Pre-Processing Plot Data','--->',(num2str(floor(i/(finish)*100))),'%'))
+        for r = 1:24
+            if dataCell{2}(i,r) == 0
+                continue
+            end
+            
+            for q = 2:7
+                
+                
+                if q ~= 7
+                    
+                    numberOfPoints = dataCell{q}(i,r)-dataCell{q}(i,r+1);
+                else
+                    numberOfPoints = dataCell{q}(i,r);
+                end
+            
+                    noiseX{i,q} = [noiseX{i,q} (randn(1, numberOfPoints)-.5).*xvar + points(r,1)];
+                    noiseY{i,q} = [noiseY{i,q} (randn(1, numberOfPoints)-.5).*yvar + points(r,2)];
+                    noiseZ{i,q} = [noiseZ{i,q} (randn(1, numberOfPoints)-.5).*zvar + points(r,3)];
+            end
+             
+            
+            
+        end
+        tSArray(i) = dataCell{2}(i,25);
+        
+    
+    end
+    
+    
+        
+    waitbar(1,h,'Finishing');
+    pause(1)
+    
+    close(h)
+    
+    
+    
+    
+    
+
         
         
         

@@ -29,3 +29,7 @@ Redesigned surfScatter and dataHandling, they are now callable functions. use he
 Notes on surfScatter : right changeing the time window requires going into the actual function code and changing the index values of bottom and top to be set where you want. Currently they are set to show the time from 12:20 - 12:35.
 The interactions between the scatter points and the legend are handled by using a callback function to toggle the visibility of 7 hidden points. Then using linkprop() we link the visibility of these points to every corresponding plot generated. Seems to arbitrarily become broken as different instances of the code is changed. Pause(.05) was chosen as it appears to be the shortest pause while still retaining the ability to rotate the graph and use the hide points callback function.
 This function by default ignores all 0 values and its runspeed is constrained by the computational speed that it can calculate and draw scatters, not by how long the time delay is.
+
+
+9/18/2020
+restructed the dataHandling program and removed the need for bigArray outside of dataHandling. refrencing the array was too slow for the plotting utility. most likely won't need for meshGridPrep either. As of this commit surfScatter should be in its final form. the exporting function will be removed from it as the dataHandling function has taken over the task with its X Y and Z variables. 
