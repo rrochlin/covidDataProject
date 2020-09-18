@@ -1,17 +1,21 @@
-function [exportArray,F] = surfScatter(noiseX,noiseY,noiseZ,refresh,export,animation,bigArray,points,inputSensors)
+function [exportArray,F] = surfScatter(noiseX,noiseY,noiseZ,comp,animation,points,tSArray,first,last)
 
     % Robert Rochlin 9/15/2020
     %   function to create a scatterplot animation from the ordered cell array
     %   from dataHandling().
     % 
     % reccommended default
-    % surfScatter(noiseX,noiseY,noiseZ,50,0,0,bigArray,points,[2:7]);
+    % surfScatter(X,Y,Z,.05,0,0,points,tSArray,'first','last');
     %
-    % noiseX,noiseY, and noiseZ are created by data handling, and contain all
+    % X,Y, and Z are created by data handling, and contain all
     % points to be plotted
-    %
-    % refresh adjusts how long the animation waits before removing scatters
-    % from the figure
+    % 
+    % comp is the input for the pause function. The better your computers cpu
+    % and ram the lower you can set this. Usually i would recommend going for
+    % .1-.5 seconds, if you're on a really good computer you can try for
+    % .01-.05, it just speeds the animation up. the drawback are that if you're
+    % going too fast for your pc you will be unable to use the
+    % scaling/rotation/visibility toggles
     % 
     % setting export to 1 will enable the export of the scatterpoints to an
     % array. setting animation to 1 will create F, which is a matlab animation
@@ -20,30 +24,30 @@ function [exportArray,F] = surfScatter(noiseX,noiseY,noiseZ,refresh,export,anima
     % bigArray and points are created by dataHandling and are passed to
     % surfScatter.
     % 
-    % sensors controls which points will be plotted.
-    % 2 is for dp 0.3 ---- red particles
-    % 3 is for dp 0.5 ---- green particles
-    % 4 is for dp 1.0 ---- blue particles
-    % 5 is for dp 2.5 ---- yellow particles
-    % 6 is for dp 5.0 ---- magenta particles
-    % 7 is for dp 10. ---- cyan particles
-    
-    
-    
-    
+    % tSArray is a timestamp array ordered with the noise arrays that keeps
+    % track of slice timestamps
+    % 
+    % first/last are the beginning and end of the plotting window you want.
+    % enter 'first' for the beginning and 'last' for the end. for specific
+    % times enter the time in 'HH:MM:SS' format for 24 hr clock
+    % 
     
     
     clf
-    
-    
-    
     hold on
     
-    
-    
+    % here i am defining a cell array to hold the plotting information for
+    % scatter3
     values = {'','Black','';1,'Red','filled';2,'Green','filled';4,'Blue','filled';10,'Yellow','filled';20,'Magenta','filled';40,'Cyan','filled'};
-    plotArray = gobjects(7,refresh+7);
     
+    % controls the amount of artifact data displayed by plotting
+    refresh = 8;
+    
+    % preallocating the graphics array for plotting
+    plotArray = gobjects(7,refresh+2);
+    
+    % plotting null points to link visibility with real points, and also for
+    % the legend
     plotArray(1,1) = scatter3(NaN,NaN,NaN,'Black');
     plotArray(2,1) = scatter3(NaN,NaN,NaN,'Red','filled');
     plotArray(3,1) = scatter3(NaN,NaN,NaN,'Green','filled');
@@ -53,36 +57,33 @@ function [exportArray,F] = surfScatter(noiseX,noiseY,noiseZ,refresh,export,anima
     plotArray(7,1) = scatter3(NaN,NaN,NaN,'Cyan','filled');
     
     
-    
+    % createing/labelling legend
     lgd = legend('Sensors','Dp 0.3','Dp 0.5','Dp 1.0', 'Dp 2.5', 'Dp 5', 'Dp 10');
     lgd.AutoUpdate = 'off';
+    % enabling callback function for interactive legend
     lgd.ItemHitFcn = @action1;
     
+    % axis sized according to picture given
     axis([0 40 0 30 0 10])
-    fig1 = scatter3(points(:,1),points(:,2),points(:,3),80,'Black')
     
-    linkprop([fig1 plotArray(1,1)],'Visible')
+    % plotting the sensor nodes
+    fig1 = scatter3(points(:,1),points(:,2),points(:,3),80,'Black');
     
+    % linking sensor nodes to null black plot for toggling visibility.
+    linkprop([fig1 plotArray(1,1)],'Visible');
+    warning('off','last')
+    
+    % creating link objects for binding visible property for the new scatters
+    % made to the legend
     for i = 2:7
         eval(strcat("hlink",int2str(i),"  = linkprop(plotArray(",int2str(i),",:),'Visible');"))
-       
         warning('off','last')
     end
     
     
-    
-    
-    % Here we will be "interprolating data. as of 8/30/2020 our first
-    % interpolation trial will be a random arragment of points distributed
-    % uniforming 2 units around each node. The amount of points shown is
-    % dependant entirely on that sensors reading.
-    
-    
-    % img = imread('OR Floor Plan.jpg');
-    % image([0 40],[0 30],img);
-    
-    test = 'x';
-    xlabel(test);
+    % labelling axis and plotting the OR floor plan image, and setting camera
+    % position to what i think is a good view
+    xlabel('x');
     ylabel('y');
     zlabel('z');
     img = imread('OR Floor Plan.jpg');     % Load a sample image
@@ -96,61 +97,95 @@ function [exportArray,F] = surfScatter(noiseX,noiseY,noiseZ,refresh,export,anima
     
     
     
+    % taking in the sensors argument for sensors  to be plotted
     
-    
-    sensors = inputSensors;
+    sensors = 2:7;
     
     %we always want count to be no less than 2 so the inital points are not
     %deleted
+    % counter variable for help with managing the graphics
     count = 1;
     
-    exportArray = [0,0,0,0];
     
+    % flag to tell program to begin deleting old graphics
     countFlag = 0;
     
-    % top = max(size(bigArray));
+    % here bottom and top control the plotting range, they are essentially
+    % index elements for the bigArray
     
-    bottom = 11263;
     
-    top = 13084;
+    % bottom = 11263;
+    % 
+    % top = 13084;
+    if string(first) == 'first'
+        top = 1;
+    else
+        for i =1:size(tSArray,2)
+            if tSArray(i) > datenum(first)
+                top = i;
+                break
+            end
+        end
+    end
     
+    if string(last) == 'last'
+        bottom = size(tSArray,2);
+    else
+        for i =size(tSArray,2):-1:1
+            if tSArray(i) < datenum(last)
+                bottom = i;
+                break
+            end
+        end
+    end
+    
+    % var for the animation feature
     movieCount = 1;
     
     
     
             
-    
+    % this will reduce the updates given to the figure, letting it run faster
+    % and also helping us use the rotate and legend toggles
     drawnow limitrate
     
-    
-    for i = bottom:top
+    % array will loop throught the given data range
+    for i = top:bottom
+        title(datestr(tSArray(i),13))
         
+    % %     quick and dirty way to give auto pauses   
     %     if mod(i,250) == 0
     % 
     %              w = waitforbuttonpress;
     % 
     %     end
-        
-        if table2array(bigArray(i,2)) == 0
+    
+    
+    
+    %   in this method we are not plotting any zero entries.    
+        if isempty(noiseX{i,2})
             continue
         end
     
         
         
-    
+    %   q controls which particles we are concerned with plotting, default is
+    %   2:7
         for q = sensors
                     
             count = count +1;
     
                 if countFlag == 1
                     delete(plotArray(2:7,count))
+                    warning('off','last')
     
                 end
         
     
     
-    
-             plotArray(q,count) = scatter3(points(table2array(bigArray(i,9)),1) + noiseX{i,q},points(table2array(bigArray(i,9)),2)+ noiseY{i,q},points(table2array(bigArray(i,9)),3) + noiseZ{i,q},values{q,1},values{q,2},'filled');
+    %   plots are saved to plotArray so they can be deleted in the correct
+    %   order
+             plotArray(q,count) = scatter3(noiseX{i,q},noiseY{i,q},noiseZ{i,q},values{q,1},values{q,2},'filled');
              eval(strcat("addtarget(hlink",int2str(q),",plotArray(q,count));"))
              
                       
@@ -160,17 +195,10 @@ function [exportArray,F] = surfScatter(noiseX,noiseY,noiseZ,refresh,export,anima
              end
     
     
-             timeForTitle = table2array(bigArray(i,1));
-    
-             title(timeForTitle)
-    
-             pause(.05)
              
     
-    
-             if export == 1
-                exportArray = [exportArray;(points(table2array(bigArray(i,9)),1) + noiseX)',(points(table2array(bigArray(i,9)),2)+ noiseY)',(points(table2array(bigArray(i,9)),3) + noiseZ)',table2array(bigArray(i,8))*ones(table2array(bigArray(i,q)),1)];
-             end
+             pause(comp)
+             
     
              if animation == 1
                 F(movieCount) = getframe(figure(1));
@@ -182,6 +210,9 @@ function [exportArray,F] = surfScatter(noiseX,noiseY,noiseZ,refresh,export,anima
             
         end
     end
+    
+    % callback function for visibility on legend feature, lifted from mathworks
+    % blog post by Jiro Doke
     
     function action1(src,event)
     % This callback toggles the visibility of the line
@@ -195,14 +226,6 @@ function [exportArray,F] = surfScatter(noiseX,noiseY,noiseZ,refresh,export,anima
     end
     
     
-         % Set the title to the line name
-    
-                
-                
-                
-                
-                
-     % scatter3(points(:,1),points(:,2),points(:,3),%size goes here try 1,'red','filled')
     
     
     
