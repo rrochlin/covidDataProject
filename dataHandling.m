@@ -1,6 +1,6 @@
-function [bigArray,B,Br,points,sC,noiseX,noiseY,noiseZ,tSArray] = dataHandling(xvar,yvar,zvar)
+function [dataCell,B,Br,points,sC,noiseX,noiseY,noiseZ,tSArray] = dataHandling(xvar,yvar,zvar,dCell)
 
-    % [bigArray,B,Br,points,sC,X,Y,Z,tSArray] = dataHandling(2,2,1);
+    % [dataCell,B,Br,points,sC,X,Y,Z,tSArray] = dataHandling(.75,.75,1/3,[]);
     % 
     % 
     % Robert Rochlin 9/15/2020
@@ -13,6 +13,10 @@ function [bigArray,B,Br,points,sC,noiseX,noiseY,noiseZ,tSArray] = dataHandling(x
     % postional information for the sensors.
     % 
     % xvar, yvar, and zvar control the data spread for the surf function.
+    % 
+    % If attempting to generate different noise values, repass dataCell as the
+    % final argument in place of []. This will bypass the creating of dataCell,
+    % which is a majority of the runtime for this function.
     
     
     
@@ -30,6 +34,8 @@ function [bigArray,B,Br,points,sC,noiseX,noiseY,noiseZ,tSArray] = dataHandling(x
     % files. The files only contain the column i think we need for the
     % visualization we're going to do, and also have an added sensor id and
     % int timestamp column
+    
+    
     
     for i=1:numBArrays
         
@@ -218,37 +224,40 @@ function [bigArray,B,Br,points,sC,noiseX,noiseY,noiseZ,tSArray] = dataHandling(x
     
     % After we have our order cell array, we put it into another cell array and
     % group everything into time slices.
+    if isempty(dCell)
+        for q = 2:7
+        dataCell{q} = zeros(floor(size(bigArray,1)/36),25);
+        dataCell{q}(1,24) = table2array(bigArray(1,2));
+        dataCell{q}(1,25) = table2array(bigArray(1,8));
+        end
     
-    for q = 2:7
-    dataCell{q} = zeros(floor(size(bigArray,1)/36),25);
-    dataCell{q}(1,24) = table2array(bigArray(1,2));
-    dataCell{q}(1,25) = table2array(bigArray(1,8));
-    end
+        h = waitbar(0,'Please wait...');
+        while endVarCount < size(bigArray,1)
+            waitbar(endVarCount/size(bigArray,1),h,strcat('Organizing Data','--->',(num2str(floor(endVarCount/size(bigArray,1)*100))),'%'))
     
-    h = waitbar(0,'Please wait...');
-    while endVarCount < size(bigArray,1)
-        waitbar(endVarCount/size(bigArray,1),h,strcat('Organizing Data','--->',(num2str(floor(endVarCount/size(bigArray,1)*100))),'%'))
     
-        
-        while table2array(bigArray(endVarCount+1,9))~=24
+            while table2array(bigArray(endVarCount+1,9))~=24
+                endVarCount = endVarCount + 1;
+                for q = 2:7
+                    dataCell{q}(increment,table2array(bigArray(endVarCount,9))) = table2array(bigArray(endVarCount,q));
+                end
+            end
+    
+            increment = increment +1;
             endVarCount = endVarCount + 1;
             for q = 2:7
                 dataCell{q}(increment,table2array(bigArray(endVarCount,9))) = table2array(bigArray(endVarCount,q));
+                dataCell{q}(increment,25) = table2array(bigArray(endVarCount,8));
             end
-        end
-        
-        increment = increment +1;
-        endVarCount = endVarCount + 1;
-        for q = 2:7
-            dataCell{q}(increment,table2array(bigArray(endVarCount,9))) = table2array(bigArray(endVarCount,q));
-            dataCell{q}(increment,25) = table2array(bigArray(endVarCount,8));
-        end
-        
-    end
-    waitbar(1,h,'Finishing');
-    pause(1)
     
-    close(h)
+        end
+        waitbar(1,h,'Finishing');
+        pause(1)
+    
+        close(h)
+    else
+        dataCell = dCell;
+    end
     
     noiseX = cell(size(dataCell{2},1),7);
     noiseY=noiseX;
@@ -302,7 +311,6 @@ function [bigArray,B,Br,points,sC,noiseX,noiseY,noiseZ,tSArray] = dataHandling(x
     
     
     
-
         
         
         
