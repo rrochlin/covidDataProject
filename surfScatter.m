@@ -5,7 +5,7 @@ function [exportArray,F] = surfScatter(noiseX,noiseY,noiseZ,comp,animation,point
     %   from dataHandling().
     % 
     % reccommended default
-    % surfScatter(X,Y,Z,.05,0,0,points,tSArray,'first','last');
+    % surfScatter(X,Y,Z,0.2,0,points,tSArray,'first','last');
     %
     % X,Y, and Z are created by data handling, and contain all
     % points to be plotted
@@ -64,7 +64,7 @@ function [exportArray,F] = surfScatter(noiseX,noiseY,noiseZ,comp,animation,point
     lgd.ItemHitFcn = @action1;
     
     % axis sized according to picture given
-    axis([0 40 0 30 0 10])
+    axis([0 32.5 0 30 0 8])
     
     % plotting the sensor nodes
     fig1 = scatter3(points(:,1),points(:,2),points(:,3),80,'Black');
@@ -86,9 +86,10 @@ function [exportArray,F] = surfScatter(noiseX,noiseY,noiseZ,comp,animation,point
     xlabel('x');
     ylabel('y');
     zlabel('z');
-    img = imread('OR Floor Plan.jpg');     % Load a sample image
-    xImage = [0 40; 0 40];   % The x data for the image corners
-    yImage = [0 0; 30 30];              % The y data for the image corners
+    img = imread('OR Floor Plan OG.jpg');     % Load a sample image
+    img = flip(img,3);
+    xImage = [0 32.5; 0 32.5];   % The x data for the image corners
+    yImage = [-1 -1; 30 30];              % The y data for the image corners
     zImage = [.1 .1; .1 .1];   % The z data for the image corners
     surf(xImage,yImage,zImage,...    % Plot the surface
          'CData',img,...
