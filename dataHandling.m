@@ -66,7 +66,7 @@ function [bigArray,B,Br,points,sC,noiseX,noiseY,noiseZ] = dataHandling(xvar,yvar
             catch
             end
         end
-        
+        warning('off','last')
         
     end
     

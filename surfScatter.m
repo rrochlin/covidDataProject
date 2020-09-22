@@ -59,9 +59,9 @@ function [exportArray,F] = surfScatter(noiseX,noiseY,noiseZ,refresh,export,anima
     lgd.ItemHitFcn = @action1;
     
     axis([0 40 0 30 0 10])
-    fig1 = scatter3(points(:,1),points(:,2),points(:,3),80,'Black')
+    fig1 = scatter3(points(:,1),points(:,2),points(:,3),80,'Black');
     
-    linkprop([fig1 plotArray(1,1)],'Visible')
+    linkprop([fig1 plotArray(1,1)],'Visible');
     
     for i = 2:7
         eval(strcat("hlink",int2str(i),"  = linkprop(plotArray(",int2str(i),",:),'Visible');"))
@@ -162,7 +162,7 @@ function [exportArray,F] = surfScatter(noiseX,noiseY,noiseZ,refresh,export,anima
     
              timeForTitle = table2array(bigArray(i,1));
     
-             title(timeForTitle)
+             title(string(timeForTitle))
     
              pause(.05)
              
