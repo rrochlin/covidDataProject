@@ -38,7 +38,7 @@ function [exportArray,F] = surfScatter(noiseX,noiseY,noiseZ,comp,animation,point
     
     % here i am defining a cell array to hold the plotting information for
     % scatter3
-    values = {'','Black','';1,'Red','filled';2,'Green','filled';4,'Blue','filled';10,'Yellow','filled';20,'Magenta','filled';40,'Cyan','filled'};
+    values = {'','Black','';1,'Magenta','filled';2,'Blue','filled';4,'Cyan','filled';10,'Green','filled';20,'Yellow','filled';40,'Red','filled'};
     
     % controls the amount of artifact data displayed by plotting
     refresh = 8;
@@ -48,13 +48,13 @@ function [exportArray,F] = surfScatter(noiseX,noiseY,noiseZ,comp,animation,point
     
     % plotting null points to link visibility with real points, and also for
     % the legend
-    plotArray(1,1) = scatter3(NaN,NaN,NaN,'Black');
-    plotArray(2,1) = scatter3(NaN,NaN,NaN,'Red','filled');
-    plotArray(3,1) = scatter3(NaN,NaN,NaN,'Green','filled');
-    plotArray(4,1) = scatter3(NaN,NaN,NaN,'Blue','filled');
-    plotArray(5,1) = scatter3(NaN,NaN,NaN,'Yellow','filled');
-    plotArray(6,1) = scatter3(NaN,NaN,NaN,'Magenta','filled');
-    plotArray(7,1) = scatter3(NaN,NaN,NaN,'Cyan','filled');
+    plotArray(1,1) = scatter3(NaN,NaN,NaN,values{1,2});
+    plotArray(2,1) = scatter3(NaN,NaN,NaN,values{2,2},values{2,3});
+    plotArray(3,1) = scatter3(NaN,NaN,NaN,values{3,2},values{3,3});
+    plotArray(4,1) = scatter3(NaN,NaN,NaN,values{4,2},values{4,3});
+    plotArray(5,1) = scatter3(NaN,NaN,NaN,values{5,2},values{5,3});
+    plotArray(6,1) = scatter3(NaN,NaN,NaN,values{6,2},values{6,3});
+    plotArray(7,1) = scatter3(NaN,NaN,NaN,values{7,2},values{7,3});
     
     
     % createing/labelling legend
