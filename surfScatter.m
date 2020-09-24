@@ -1,4 +1,4 @@
-function [exportArray,F] = surfScatter(noiseX,noiseY,noiseZ,comp,animation,points,tSArray,first,last)
+function [F] = surfScatter(noiseX,noiseY,noiseZ,comp,animation,points,tSArray,first,last)
 
     % Robert Rochlin 9/15/2020
     %   function to create a scatterplot animation from the ordered cell array
@@ -118,7 +118,7 @@ function [exportArray,F] = surfScatter(noiseX,noiseY,noiseZ,comp,animation,point
     % bottom = 11263;
     % 
     % top = 13084;
-    if string(first) == 'first'
+    if strcmp(first,'first')
         top = 1;
     else
         for i =1:size(tSArray,2)
@@ -129,7 +129,7 @@ function [exportArray,F] = surfScatter(noiseX,noiseY,noiseZ,comp,animation,point
         end
     end
     
-    if string(last) == 'last'
+    if strcmp(last,'last')
         bottom = size(tSArray,2);
     else
         for i =size(tSArray,2):-1:1

@@ -12,12 +12,14 @@ The unfilled black circles represent sensors and the filled circles represent dr
 
 The color key for the scatter plot is(size,color,filled/unfilled): 
 
-	Dp 0.3 ---	1,’Red’,’filled’
-	Dp 0.5 ---	2,’Green’,’filled’
-	Dp 1.0 ---	4,’Blue’,’filled’
-	Dp 2.5 ---	10,’Yellow’,’filled’
-	Dp 5.0 ---	20,’Magenta’,’filled’
-	Dp 10.0 ---	40,’Cyan’,’filled’
+	
+
+	Dp 0.3 ---	1,’Magenta’,’filled’
+	Dp 0.5 ---	2,’Blue’,’filled’
+	Dp 1.0 ---	4,’Cyan’,’filled’
+	Dp 2.5 ---	10,’Green’,’filled’
+	Dp 5.0 ---	20,’Yellow’,’filled’
+	Dp 10.0 ---	40,’Red’,’filled’
 
 
 
